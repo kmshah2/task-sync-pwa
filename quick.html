@@ -10,472 +10,94 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0d0d11;
-      --surface: rgba(255,255,255,0.06);
-      --surface-solid: #1a1a22;
-      --border: rgba(255,255,255,0.12);
-      --border-strong: rgba(255,255,255,0.18);
-      --text: rgba(255,255,255,0.95);
-      --text2: rgba(255,255,255,0.60);
-      --text3: rgba(255,255,255,0.40);
-      --neon-purple: #8c59f2;
-      --neon-cyan: #33d9e6;
-      --neon-pink: #f23d8c;
-      --green: #30d158;
-      --red: #ff453a;
-      --high: #f23d72;
-      --medium: #f2be20;
-      --low: #33d6e6;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg); color: var(--text);
-      height: 100dvh; display: flex; flex-direction: column;
-      -webkit-font-smoothing: antialiased;
-      overflow: hidden;
-    }
-
-    /* Ambient glow */
-    body::before {
-      content: ''; position: fixed; width: 350px; height: 350px;
-      top: -60px; left: -80px; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, rgba(140,89,242,0.20) 0%, transparent 70%);
-      filter: blur(50px); z-index: 0;
-    }
-    body::after {
-      content: ''; position: fixed; width: 280px; height: 280px;
-      bottom: 20px; right: -60px; border-radius: 50%; pointer-events: none;
-      background: radial-gradient(circle, rgba(51,217,230,0.10) 0%, transparent 70%);
-      filter: blur(50px); z-index: 0;
-    }
-
-    .container {
-      flex: 1; display: flex; flex-direction: column;
-      padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px);
-      position: relative; z-index: 1;
-      max-width: 500px; width: 100%; margin: 0 auto;
-    }
-
-    /* Header */
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 28px;
-    }
-    .header-title {
-      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .header-icon {
-      width: 32px; height: 32px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--neon-purple), #6b3fd4);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(140,89,242,0.3);
-    }
-    .open-app-btn {
-      font-size: 14px; font-weight: 600; color: var(--neon-purple);
-      background: rgba(140,89,242,0.12); border: 1px solid rgba(140,89,242,0.2);
-      padding: 8px 14px; border-radius: 10px; cursor: pointer;
-      text-decoration: none; transition: all 0.15s;
-    }
-    .open-app-btn:active { transform: scale(0.95); }
-
-    /* Main input area */
-    .input-card {
-      background: var(--surface-solid);
-      border: 1px solid var(--border-strong);
-      border-radius: 18px; padding: 20px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-    }
-
-    .title-input {
-      width: 100%; background: none; border: none; outline: none;
-      color: var(--text); font-family: inherit;
-      font-size: 20px; font-weight: 600; letter-spacing: -0.3px;
-      padding: 0; margin-bottom: 16px;
-    }
-    .title-input::placeholder { color: var(--text3); }
-
-    .notes-input {
-      width: 100%; background: none; border: none; outline: none;
-      color: var(--text2); font-family: inherit;
-      font-size: 15px; font-weight: 400; line-height: 1.5;
-      padding: 0; margin-bottom: 18px; resize: none; height: 48px;
-    }
-    .notes-input::placeholder { color: var(--text3); }
-
-    /* Options row */
-    .options-row {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
-    }
-
-    .option-chip {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 12px; border-radius: 10px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      color: var(--text2); font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s;
-      position: relative;
-    }
-    .option-chip:active { transform: scale(0.95); }
-    .option-chip.active { border-color: var(--neon-purple); color: var(--text); background: rgba(140,89,242,0.12); }
-    .option-chip.flag-active { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(242,61,140,0.12); }
-
-    .option-chip select {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer;
-      font-size: 16px; /* prevent iOS zoom */
-    }
-
-    .priority-indicator {
-      width: 8px; height: 8px; border-radius: 50%;
-    }
-
-    /* Submit button */
-    .submit-btn {
-      width: 100%; padding: 16px; border: none;
-      background: linear-gradient(135deg, var(--neon-purple), #6b3fd4);
-      color: white; font-family: inherit; font-size: 17px; font-weight: 700;
-      border-radius: 14px; cursor: pointer; letter-spacing: -0.2px;
-      box-shadow: 0 4px 20px rgba(140,89,242,0.35);
-      transition: all 0.15s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .submit-btn:active { transform: scale(0.97); opacity: 0.85; }
-    .submit-btn:disabled { opacity: 0.4; pointer-events: none; }
-
-    /* Success state */
-    .success-overlay {
-      position: fixed; inset: 0; z-index: 100;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .success-overlay.show { opacity: 1; pointer-events: all; }
-
-    @keyframes checkDraw {
-      0% { stroke-dashoffset: 36; }
-      100% { stroke-dashoffset: 0; }
-    }
-    @keyframes scaleIn {
-      0% { transform: scale(0); } 60% { transform: scale(1.15); } 100% { transform: scale(1); }
-    }
-    .success-circle {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: rgba(48,209,88,0.15);
-      display: flex; align-items: center; justify-content: center;
-      animation: scaleIn 0.4s cubic-bezier(0.32,0.72,0,1);
-    }
-    .success-circle svg {
-      stroke-dasharray: 36; stroke-dashoffset: 36;
-      animation: checkDraw 0.35s 0.15s ease forwards;
-    }
-    .success-text { font-size: 20px; font-weight: 700; }
-    .success-sub { font-size: 14px; color: var(--text3); }
-
-    /* Not signed in state */
-    .not-signed-in {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
-      text-align: center; padding: 40px;
-    }
-    .not-signed-in-text { font-size: 18px; font-weight: 700; }
-    .not-signed-in-sub { font-size: 14px; color: var(--text2); line-height: 1.5; }
-    .signin-link {
-      color: var(--neon-purple); font-weight: 600;
-      text-decoration: none; padding: 12px 24px;
-      background: rgba(140,89,242,0.12); border-radius: 12px;
-      border: 1px solid rgba(140,89,242,0.2);
-    }
+    :root{--bg:#08080c;--card:#1a1a22;--surface:rgba(255,255,255,0.045);--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#f0f0f5;--text2:rgba(255,255,255,0.55);--text3:rgba(255,255,255,0.32);--purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.15);--cyan:#22d3ee;--cyan-dim:rgba(34,211,238,0.12);--pink:#f43f7a;--pink-dim:rgba(244,63,122,0.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,0.12);--green:#34d399;--green-dim:rgba(52,211,153,0.12);--red:#ef4444;--red-dim:rgba(239,68,68,0.12);--high:#ef4444;--medium:#f59e0b;--low:#22d3ee;--safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.022;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+    .container{flex:1;display:flex;flex-direction:column;padding:calc(var(--safe-top)+20px) 20px calc(var(--safe-bottom)+20px);position:relative;z-index:1;max-width:500px;width:100%;margin:0 auto}
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .header-title{font-size:20px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .header-icon{width:30px;height:30px;border-radius:9px;background:var(--purple);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(139,92,246,.3)}
+    .open-app{font-size:13px;font-weight:600;color:var(--purple);background:var(--purple-dim);border:1px solid rgba(139,92,246,.2);padding:7px 13px;border-radius:9px;cursor:pointer;text-decoration:none;transition:all .15s}
+    .open-app:active{transform:scale(.95)}
+    .input-card{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:18px}
+    .title-input{width:100%;background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:19px;font-weight:600;letter-spacing:-.3px;padding:0;margin-bottom:14px}
+    .title-input::placeholder{color:var(--text3)}
+    .notes-input{width:100%;background:none;border:none;outline:none;color:var(--text2);font-family:inherit;font-size:14px;font-weight:400;line-height:1.5;padding:0;margin-bottom:16px;resize:none;height:44px}
+    .notes-input::placeholder{color:var(--text3)}
+    .options{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+    .opt{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;position:relative}
+    .opt:active{transform:scale(.95)}
+    .opt.active{border-color:var(--purple);color:var(--text);background:var(--purple-dim)}
+    .opt.flag-on{border-color:var(--pink);color:var(--pink);background:var(--pink-dim)}
+    .opt select{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
+    .pdot{width:7px;height:7px;border-radius:50%}
+    .submit{width:100%;padding:14px;border:none;background:var(--purple);color:white;font-family:inherit;font-size:15px;font-weight:700;border-radius:12px;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.3),inset 0 1px 0 rgba(255,255,255,.15);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .submit:active{transform:scale(.97);opacity:.85}
+    .submit:disabled{opacity:.4;pointer-events:none}
+    .success-overlay{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .3s}
+    .success-overlay.show{opacity:1;pointer-events:all}
+    @keyframes scaleIn{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+    @keyframes checkDraw{0%{stroke-dashoffset:36}100%{stroke-dashoffset:0}}
+    .success-circle{width:68px;height:68px;border-radius:50%;background:var(--green-dim);display:flex;align-items:center;justify-content:center;animation:scaleIn .4s cubic-bezier(.32,.72,0,1)}
+    .success-circle svg{stroke-dasharray:36;stroke-dashoffset:36;animation:checkDraw .35s .15s ease forwards}
+    .success-text{font-size:18px;font-weight:700}
+    .success-sub{font-size:13px;color:var(--text3)}
+    .not-signed-in{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:40px}
+    .nsi-text{font-size:17px;font-weight:700}
+    .nsi-sub{font-size:13px;color:var(--text2);line-height:1.5}
+    .nsi-link{color:var(--purple);font-weight:600;text-decoration:none;padding:11px 22px;background:var(--purple-dim);border-radius:11px;border:1px solid rgba(139,92,246,.2)}
   </style>
 </head>
 <body>
-
 <div class="container" id="main-view">
   <div class="header">
     <div class="header-title">
-      <div class="header-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </div>
+      <div class="header-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
       Quick Capture
     </div>
-    <a class="open-app-btn" href="./index.html">Open App</a>
+    <a class="open-app" href="./index.html">Open App</a>
   </div>
-
   <div class="input-card">
     <input class="title-input" id="q-title" type="text" placeholder="What needs to be done?" autocomplete="off" autofocus>
     <textarea class="notes-input" id="q-notes" placeholder="Notes (optional)"></textarea>
-
-    <div class="options-row">
-      <div class="option-chip" id="chip-priority" onclick="cyclePriority()">
-        <div class="priority-indicator" id="priority-dot" style="background:var(--text3)"></div>
-        <span id="priority-label">None</span>
-      </div>
-
-      <div class="option-chip" id="chip-due">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="due-label">Due date</span>
-        <select id="q-due-select" onchange="handleDueSelect(this.value)">
-          <option value="">No date</option>
-          <option value="today">Today</option>
-          <option value="tomorrow">Tomorrow</option>
-          <option value="week">Next week</option>
-          <option value="custom">Pick date…</option>
-        </select>
-      </div>
-      <input type="date" id="q-due-custom" style="position:absolute;opacity:0;pointer-events:none" onchange="handleCustomDate(this.value)">
-
-      <div class="option-chip" id="chip-flag" onclick="toggleQFlag()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-        <span>Flag</span>
-      </div>
+    <div class="options">
+      <div class="opt" id="chip-pri" onclick="cyclePri()"><div class="pdot" id="pdot" style="background:var(--text3)"></div><span id="plbl">None</span></div>
+      <div class="opt" id="chip-due"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="dlbl">Due date</span><select id="dsel" onchange="handleDue(this.value)"><option value="">No date</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="week">Next week</option><option value="custom">Pick…</option></select></div>
+      <input type="date" id="dcustom" style="position:absolute;opacity:0;pointer-events:none" onchange="handleCustom(this.value)">
+      <div class="opt" id="chip-flag" onclick="toggleF()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span>Flag</span></div>
     </div>
-
-    <button class="submit-btn" id="submit-btn" onclick="submitTask()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Task
-    </button>
+    <button class="submit" id="sbtn" onclick="submitTask()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button>
   </div>
 </div>
-
-<!-- Not signed in -->
-<div class="not-signed-in" id="not-signed-in" style="display:none">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-  <div class="not-signed-in-text">Not signed in</div>
-  <div class="not-signed-in-sub">Open the main app and sign in with Google first, then come back here.</div>
-  <a class="signin-link" href="./index.html">Open Tasks App</a>
+<div class="not-signed-in" id="nsi" style="display:none">
+  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  <div class="nsi-text">Not signed in</div>
+  <div class="nsi-sub">Open the main app and sign in with Google first.</div>
+  <a class="nsi-link" href="./index.html">Open Tasks</a>
 </div>
-
-<!-- Success overlay -->
-<div class="success-overlay" id="success-overlay">
-  <div class="success-circle">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  </div>
+<div class="success-overlay" id="sov">
+  <div class="success-circle"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
   <div class="success-text">Task added</div>
   <div class="success-sub">Tap anywhere to add another</div>
 </div>
-
 <script>
-const SUPABASE_URL = 'https://kmfymwtarvvmzuwwspwy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4';
-
-let session = null;
-let qPriority = 'None';
-let qFlagged = false;
-let qDueDate = null;
-
-// ── Auth (shares localStorage with main app) ──
-async function verifyToken(token) {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) return null;
-    const user = await res.json();
-    return user?.id ? { access_token: token, user } : null;
-  } catch { return null; }
-}
-
-async function refreshSession() {
-  const rt = localStorage.getItem('sb_refresh_token');
-  if (!rt) return null;
-  try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: rt })
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.access_token) return null;
-    localStorage.setItem('sb_access_token', data.access_token);
-    if (data.refresh_token) localStorage.setItem('sb_refresh_token', data.refresh_token);
-    return { access_token: data.access_token, user: data.user };
-  } catch { return null; }
-}
-
-// ── Priority cycling ──
-const PRIORITIES = ['None', 'Low', 'Medium', 'High'];
-const P_COLORS = { None: 'var(--text3)', Low: 'var(--low)', Medium: 'var(--medium)', High: 'var(--high)' };
-
-function cyclePriority() {
-  const i = (PRIORITIES.indexOf(qPriority) + 1) % PRIORITIES.length;
-  qPriority = PRIORITIES[i];
-  document.getElementById('priority-label').textContent = qPriority;
-  document.getElementById('priority-dot').style.background = P_COLORS[qPriority];
-  const chip = document.getElementById('chip-priority');
-  chip.classList.toggle('active', qPriority !== 'None');
-  if (qPriority !== 'None') chip.style.borderColor = P_COLORS[qPriority];
-  else chip.style.borderColor = '';
-}
-
-// ── Due date ──
-function handleDueSelect(val) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const chip = document.getElementById('chip-due');
-  const label = document.getElementById('due-label');
-
-  if (val === 'custom') {
-    document.getElementById('q-due-custom').showPicker?.();
-    document.getElementById('q-due-custom').click();
-    document.getElementById('q-due-select').value = qDueDate ? 'custom' : '';
-    return;
-  }
-
-  if (!val) { qDueDate = null; label.textContent = 'Due date'; chip.classList.remove('active'); return; }
-
-  let d = new Date(today);
-  if (val === 'tomorrow') d.setDate(d.getDate() + 1);
-  if (val === 'week') d.setDate(d.getDate() + 7);
-  qDueDate = d.toISOString();
-
-  label.textContent = val === 'today' ? 'Today' : val === 'tomorrow' ? 'Tomorrow' : 'Next week';
-  chip.classList.add('active');
-}
-
-function handleCustomDate(val) {
-  if (!val) return;
-  qDueDate = new Date(val + 'T00:00:00').toISOString();
-  const d = new Date(val);
-  document.getElementById('due-label').textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  document.getElementById('chip-due').classList.add('active');
-  document.getElementById('q-due-select').value = 'custom';
-}
-
-// ── Flag ──
-function toggleQFlag() {
-  qFlagged = !qFlagged;
-  document.getElementById('chip-flag').classList.toggle('flag-active', qFlagged);
-}
-
-// ── Submit ──
-async function submitTask() {
-  const title = document.getElementById('q-title').value.trim();
-  if (!title) { document.getElementById('q-title').focus(); return; }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = 'Adding…';
-
-  const now = new Date().toISOString();
-  const task = {
-    id: crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)),
-    user_id: session.user.id, title,
-    notes: document.getElementById('q-notes').value.trim(),
-    due_date: qDueDate, defer_date: null,
-    is_completed: false, is_flagged: qFlagged,
-    priority: qPriority, project_id: null,
-    tag_ids: '[]', created_at: now, completed_at: null,
-    repeat_rule: 'None', parent_id: null, sort_order: 0,
-    last_reviewed: null, next_review_date: null,
-    review_frequency_num: null, review_frequency_unit: null,
-    is_in_review: false, is_today_task: false, updated_at: now
-  };
-
-  try {
-    let res = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify(task)
-    });
-
-    // Auto-refresh if expired
-    if (res.status === 401) {
-      const refreshed = await refreshSession();
-      if (refreshed) {
-        session = refreshed;
-        res = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'resolution=merge-duplicates'
-          },
-          body: JSON.stringify(task)
-        });
-      }
-    }
-
-    if (!res.ok) throw new Error('API error');
-    showSuccess();
-  } catch (e) {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Task`;
-    alert('Failed to add task. Check your connection.');
-  }
-}
-
-function showSuccess() {
-  const overlay = document.getElementById('success-overlay');
-  overlay.classList.add('show');
-
-  // Tap to add another
-  overlay.onclick = () => {
-    overlay.classList.remove('show');
-    resetForm();
-  };
-
-  // Auto-reset after 2s if not tapped
-  setTimeout(() => {
-    if (overlay.classList.contains('show')) {
-      overlay.classList.remove('show');
-      resetForm();
-    }
-  }, 2500);
-}
-
-function resetForm() {
-  document.getElementById('q-title').value = '';
-  document.getElementById('q-notes').value = '';
-  qPriority = 'None'; qFlagged = false; qDueDate = null;
-  document.getElementById('priority-label').textContent = 'None';
-  document.getElementById('priority-dot').style.background = 'var(--text3)';
-  document.getElementById('chip-priority').classList.remove('active');
-  document.getElementById('chip-priority').style.borderColor = '';
-  document.getElementById('chip-due').classList.remove('active');
-  document.getElementById('due-label').textContent = 'Due date';
-  document.getElementById('q-due-select').value = '';
-  document.getElementById('chip-flag').classList.remove('flag-active');
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Task`;
-  setTimeout(() => document.getElementById('q-title').focus(), 100);
-}
-
-// Submit on Enter from title field
-document.getElementById('q-title').addEventListener('keydown', e => { if (e.key === 'Enter') submitTask(); });
-
-// ── Init ──
-async function init() {
-  const saved = localStorage.getItem('sb_access_token');
-  if (saved) {
-    session = await verifyToken(saved);
-    if (!session) session = await refreshSession();
-  }
-  if (!session) session = await refreshSession();
-
-  if (session) {
-    document.getElementById('main-view').style.display = '';
-    document.getElementById('not-signed-in').style.display = 'none';
-    document.getElementById('q-title').focus();
-  } else {
-    document.getElementById('main-view').style.display = 'none';
-    document.getElementById('not-signed-in').style.display = '';
-  }
-}
-
+const SB_URL='https://kmfymwtarvvmzuwwspwy.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4';
+let session=null,qP='None',qF=false,qD=null;
+async function verify(t){try{const r=await fetch(SB_URL+'/auth/v1/user',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+t}});if(!r.ok)return null;const u=await r.json();return u?.id?{access_token:t,user:u}:null}catch{return null}}
+async function refresh(){const rt=localStorage.getItem('sb_refresh_token');if(!rt)return null;try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:rt})});if(!r.ok)return null;const d=await r.json();if(!d.access_token)return null;localStorage.setItem('sb_access_token',d.access_token);if(d.refresh_token)localStorage.setItem('sb_refresh_token',d.refresh_token);return{access_token:d.access_token,user:d.user}}catch{return null}}
+const PRI=['None','Low','Medium','High'],PCOL={None:'var(--text3)',Low:'var(--low)',Medium:'var(--medium)',High:'var(--high)'};
+function cyclePri(){const i=(PRI.indexOf(qP)+1)%PRI.length;qP=PRI[i];document.getElementById('plbl').textContent=qP;document.getElementById('pdot').style.background=PCOL[qP];const c=document.getElementById('chip-pri');c.classList.toggle('active',qP!=='None');c.style.borderColor=qP!=='None'?PCOL[qP]:''}
+function handleDue(v){const t=new Date();t.setHours(0,0,0,0);const c=document.getElementById('chip-due'),l=document.getElementById('dlbl');if(v==='custom'){document.getElementById('dcustom').showPicker?.();document.getElementById('dcustom').click();document.getElementById('dsel').value=qD?'custom':'';return}if(!v){qD=null;l.textContent='Due date';c.classList.remove('active');return}let d=new Date(t);if(v==='tomorrow')d.setDate(d.getDate()+1);if(v==='week')d.setDate(d.getDate()+7);qD=d.toISOString();l.textContent=v==='today'?'Today':v==='tomorrow'?'Tomorrow':'Next week';c.classList.add('active')}
+function handleCustom(v){if(!v)return;qD=new Date(v+'T00:00:00').toISOString();document.getElementById('dlbl').textContent=new Date(v).toLocaleDateString('en-US',{month:'short',day:'numeric'});document.getElementById('chip-due').classList.add('active');document.getElementById('dsel').value='custom'}
+function toggleF(){qF=!qF;document.getElementById('chip-flag').classList.toggle('flag-on',qF)}
+async function submitTask(){const title=document.getElementById('q-title').value.trim();if(!title){document.getElementById('q-title').focus();return}const btn=document.getElementById('sbtn');btn.disabled=true;btn.textContent='Adding…';const now=new Date().toISOString();const task={id:crypto.randomUUID?crypto.randomUUID():([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)),user_id:session.user.id,title,notes:document.getElementById('q-notes').value.trim(),due_date:qD,defer_date:null,is_completed:false,is_flagged:qF,priority:qP,project_id:null,tag_ids:'[]',created_at:now,completed_at:null,repeat_rule:'None',parent_id:null,sort_order:0,last_reviewed:null,next_review_date:null,review_frequency_num:null,review_frequency_unit:null,is_in_review:false,is_today_task:false,updated_at:now};try{let r=await fetch(SB_URL+'/rest/v1/tasks',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(task)});if(r.status===401){const s=await refresh();if(s){session=s;r=await fetch(SB_URL+'/rest/v1/tasks',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(task)})}}if(!r.ok)throw new Error('fail');showOK()}catch{btn.disabled=false;btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task';alert('Failed — check connection.')}}
+function showOK(){const o=document.getElementById('sov');o.classList.add('show');o.onclick=()=>{o.classList.remove('show');reset()};setTimeout(()=>{if(o.classList.contains('show')){o.classList.remove('show');reset()}},2500)}
+function reset(){document.getElementById('q-title').value='';document.getElementById('q-notes').value='';qP='None';qF=false;qD=null;document.getElementById('plbl').textContent='None';document.getElementById('pdot').style.background='var(--text3)';document.getElementById('chip-pri').classList.remove('active');document.getElementById('chip-pri').style.borderColor='';document.getElementById('chip-due').classList.remove('active');document.getElementById('dlbl').textContent='Due date';document.getElementById('dsel').value='';document.getElementById('chip-flag').classList.remove('flag-on');const b=document.getElementById('sbtn');b.disabled=false;b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task';setTimeout(()=>document.getElementById('q-title').focus(),100)}
+document.getElementById('q-title').addEventListener('keydown',e=>{if(e.key==='Enter')submitTask()});
+async function init(){const s=localStorage.getItem('sb_access_token');if(s){session=await verify(s);if(!session)session=await refresh()}if(!session)session=await refresh();if(session){document.getElementById('main-view').style.display='';document.getElementById('nsi').style.display='none';document.getElementById('q-title').focus()}else{document.getElementById('main-view').style.display='none';document.getElementById('nsi').style.display=''}}
 init();
 </script>
 </body>
