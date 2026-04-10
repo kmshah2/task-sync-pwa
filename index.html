@@ -311,6 +311,13 @@
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
         </svg>
       </button>
+      <button class="icon-btn" id="download-btn" onclick="downloadApp()" title="Download Mac App" style="display:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>
       <div class="avatar-btn" id="avatar-btn" onclick="toggleUserMenu()">?</div>
     </div>
   </div>
@@ -425,7 +432,7 @@
 
 <script>
 const SUPABASE_URL = 'https://kmfymwtarvvmzuwwspwy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4'; // paste your eyJ... legacy anon key
+const SUPABASE_KEY = 'YOUR_ANON_KEY_HERE'; // paste your eyJ... legacy anon key
 
 let session    = null;
 let tasks      = [];
@@ -674,6 +681,14 @@ function closeModal()          { document.getElementById('modal-overlay').classL
 function handleOverlayClick(e) { if (e.target.id==='modal-overlay') closeModal(); }
 function toggleFlag()          { flagged = !flagged; document.getElementById('toggle-flag').classList.toggle('on', flagged); }
 document.getElementById('input-title').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+
+// ── Download Mac App ──
+const isMac = /Mac/.test(navigator.platform) && !/iPhone|iPad/.test(navigator.userAgent);
+if (isMac) document.getElementById('download-btn').style.display = 'flex';
+
+function downloadApp() {
+  window.location.href = 'https://kmshah2.github.io/task-sync-pwa/TaskApp.dmg';
+}
 
 // ── Init ──
 async function init() {
