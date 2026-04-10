@@ -10,140 +10,193 @@
   <link rel="manifest" href="manifest.json">
   <style>
     :root {
-      --bg:       #0c0c0e;
-      --surface:  #1c1c1e;
-      --surface2: #2c2c2e;
-      --border:   #3a3a3c;
-      --text:     #ffffff;
-      --text2:    #aeaeb2;
-      --accent:   #5B7FFF;
-      --high:     #f23d72;
-      --medium:   #f2be20;
-      --low:      #33d6e6;
-      --green:    #30d158;
+      --bg:          #0c0c0e;
+      --surface:     #1c1c1e;
+      --surface2:    #2c2c2e;
+      --border:      #3a3a3c;
+      --text:        #ffffff;
+      --text2:       #aeaeb2;
+      --accent:      #5B7FFF;
+      --high:        #f23d72;
+      --medium:      #f2be20;
+      --low:         #33d6e6;
+      --green:       #30d158;
+      --red:         #ff453a;
       --safe-top:    env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      background: var(--bg); color: var(--text);
+      height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* ── Loading ── */
+    #screen-loading { align-items: center; justify-content: center; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 30px; height: 30px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    /* ── Login ── */
+    #screen-login {
+      align-items: center; justify-content: center;
+      padding: 40px 32px calc(var(--safe-bottom) + 40px); position: relative;
+    }
+    .login-glow {
+      position: absolute; width: 340px; height: 340px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(91,127,255,0.15) 0%, transparent 70%);
+      top: 5%; left: 50%; transform: translateX(-50%); pointer-events: none;
+    }
+    .login-logo {
+      width: 84px; height: 84px; background: var(--accent); border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 40px rgba(91,127,255,0.4); margin-bottom: 30px;
+    }
+    .login-title { font-size: 34px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 10px; }
+    .login-sub {
+      font-size: 15px; color: var(--text2); text-align: center;
+      line-height: 1.5; margin-bottom: 52px; max-width: 280px;
+    }
+    .google-btn {
+      width: 100%; max-width: 340px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 16px 24px; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; color: var(--text); font-family: inherit;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.12s;
+    }
+    .google-btn:hover  { background: var(--surface2); border-color: #555; }
+    .google-btn:active { transform: scale(0.97); }
+    .google-logo { width: 20px; height: 20px; flex-shrink: 0; }
+    .login-footer {
+      position: absolute; bottom: calc(var(--safe-bottom) + 24px);
+      font-size: 12px; color: var(--text2); text-align: center;
     }
 
     /* ── Header ── */
     .header {
-      padding: calc(var(--safe-top) + 16px) 20px 14px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      padding: calc(var(--safe-top) + 14px) 16px 12px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
     }
-    .header-title   { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-    .header-count   { font-size: 13px; color: var(--text2); margin-top: 3px; }
-    .sync-btn {
-      background: none; border: none; color: var(--accent);
-      font-size: 22px; cursor: pointer; padding: 6px 8px;
-      border-radius: 8px; line-height: 1;
+    .header-left { flex: 1; min-width: 0; }
+    .header-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-count { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .icon-btn {
+      background: none; border: none; color: var(--accent); cursor: pointer;
+      padding: 7px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s;
     }
-    .sync-btn:active { background: var(--surface2); }
-    .sync-btn.spinning { animation: spin 0.8s linear infinite; }
+    .icon-btn:active { background: var(--surface2); }
+    .icon-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
+    .avatar-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--surface2);
+      cursor: pointer; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--text2);
+      transition: border-color 0.15s; flex-shrink: 0;
+    }
+    .avatar-btn:active { border-color: var(--accent); }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── User menu ── */
+    .user-menu-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      opacity: 0; pointer-events: none; transition: opacity 0.18s;
+    }
+    .user-menu-overlay.open { opacity: 1; pointer-events: all; }
+    .user-menu {
+      position: absolute; top: calc(var(--safe-top) + 60px); right: 16px;
+      width: 240px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      transform: scale(0.92) translateY(-8px); transform-origin: top right;
+      transition: transform 0.18s cubic-bezier(0.32,0.72,0,1), opacity 0.18s; opacity: 0;
+    }
+    .user-menu-overlay.open .user-menu { transform: scale(1) translateY(0); opacity: 1; }
+    .user-menu-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .user-menu-name  { font-size: 15px; font-weight: 600; }
+    .user-menu-email { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .user-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px; cursor: pointer; font-size: 15px; transition: background 0.12s;
+    }
+    .user-menu-item:active { background: var(--surface2); }
+    .user-menu-item.danger { color: var(--red); }
 
     /* ── Task list ── */
-    .task-list {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 16px;
-    }
-
+    .task-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 16px; }
     .empty-state {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      height: 60%; color: var(--text2); gap: 8px;
+      height: 60%; color: var(--text2); gap: 10px;
     }
-    .empty-icon  { font-size: 44px; opacity: 0.35; }
-    .empty-text  { font-size: 17px; font-weight: 600; }
-    .empty-sub   { font-size: 14px; }
+    .empty-icon { opacity: 0.3; }
+    .empty-text { font-size: 17px; font-weight: 600; }
+    .empty-sub  { font-size: 14px; }
 
     .task-item {
       display: flex; align-items: center; gap: 14px;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.12s;
+      padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background 0.12s;
     }
-    .task-item:active      { background: var(--surface); }
-    .task-item.completing  { opacity: 0.3; transition: opacity 0.35s; }
+    .task-item:active     { background: var(--surface); }
+    .task-item.completing { opacity: 0.3; transition: opacity 0.35s; }
 
     .checkbox {
-      width: 26px; height: 26px;
-      border-radius: 50%; border: 2px solid var(--border);
-      background: none; cursor: pointer; flex-shrink: 0;
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--border); background: none; cursor: pointer; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       transition: transform 0.15s, border-color 0.15s;
     }
-    .checkbox:active       { transform: scale(0.82); }
-    .checkbox.high         { border-color: var(--high); }
-    .checkbox.medium       { border-color: var(--medium); }
-    .checkbox.low          { border-color: var(--low); }
+    .checkbox:active  { transform: scale(0.82); }
+    .checkbox.high    { border-color: var(--high);   }
+    .checkbox.medium  { border-color: var(--medium); }
+    .checkbox.low     { border-color: var(--low);    }
 
     .task-content { flex: 1; min-width: 0; }
-    .task-title {
-      font-size: 16px; font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .task-meta {
-      font-size: 12px; color: var(--text2);
-      margin-top: 4px; display: flex; gap: 8px; align-items: center;
-    }
-    .due-overdue { color: #ff453a; }
+    .task-title { font-size: 16px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-meta { font-size: 12px; color: var(--text2); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+    .due-overdue { color: var(--red); }
     .due-today   { color: var(--accent); }
-
-    .priority-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%; flex-shrink: 0;
-    }
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── Tab bar ── */
     .tab-bar {
-      display: flex;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding-bottom: var(--safe-bottom);
+      display: flex; background: var(--surface);
+      border-top: 1px solid var(--border); padding-bottom: var(--safe-bottom);
     }
     .tab {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; gap: 3px;
-      padding: 10px 4px 6px;
-      background: none; border: none;
-      color: var(--text2); font-family: inherit;
-      font-size: 10px; cursor: pointer;
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 10px 4px 6px; background: none; border: none; color: var(--text2);
+      font-family: inherit; font-size: 10px; cursor: pointer;
       transition: color 0.15s; position: relative;
     }
-    .tab.active    { color: var(--accent); }
-    .tab-icon      { font-size: 21px; }
+    .tab.active { color: var(--accent); }
+    .tab svg    { width: 22px; height: 22px; }
     .tab-badge {
       position: absolute; top: 5px; right: calc(50% - 20px);
-      background: #ff3b30; color: white;
-      font-size: 10px; font-weight: 700;
+      background: var(--red); color: white; font-size: 10px; font-weight: 700;
       min-width: 16px; height: 16px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center; padding: 0 4px;
     }
 
     /* ── FAB ── */
     .fab {
-      position: fixed; right: 22px;
-      bottom: calc(var(--safe-bottom) + 72px);
+      position: fixed; right: 22px; bottom: calc(var(--safe-bottom) + 72px);
       width: 54px; height: 54px; border-radius: 50%;
-      background: var(--accent); border: none; color: white;
-      font-size: 28px; cursor: pointer;
+      background: var(--accent); border: none; color: white; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 24px rgba(91,127,255,0.45);
       transition: transform 0.15s, box-shadow 0.15s;
@@ -152,159 +205,199 @@
 
     /* ── Modal ── */
     .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.65);
-      display: flex; align-items: flex-end;
-      z-index: 100; opacity: 0; pointer-events: none;
-      transition: opacity 0.22s;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      display: flex; align-items: flex-end; z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.22s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-
     .modal {
-      background: var(--surface);
-      border-radius: 18px 18px 0 0;
-      padding: 16px 20px calc(var(--safe-bottom) + 20px);
-      width: 100%;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+      background: var(--surface); border-radius: 18px 18px 0 0;
+      padding: 16px 20px calc(var(--safe-bottom) + 20px); width: 100%;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
     }
     .modal-overlay.open .modal { transform: translateY(0); }
-
-    .modal-handle {
-      width: 36px; height: 4px;
-      background: var(--border); border-radius: 2px;
-      margin: 0 auto 18px;
-    }
-    .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 18px; }
+    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
+    .modal-title  { font-size: 18px; font-weight: 600; margin-bottom: 18px; }
 
     .field { margin-bottom: 12px; }
     .field label {
       font-size: 11px; font-weight: 600; color: var(--text2);
-      text-transform: uppercase; letter-spacing: 0.6px;
-      display: block; margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.6px; display: block; margin-bottom: 6px;
     }
-    .field input, .field select {
-      width: 100%;
-      background: var(--surface2); border: 1.5px solid var(--border);
-      border-radius: 10px; color: var(--text);
-      font-family: inherit; font-size: 16px;
-      padding: 12px 14px; outline: none; -webkit-appearance: none;
-      transition: border-color 0.15s;
+    .field input, .field select, .field textarea {
+      width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: inherit; font-size: 16px;
+      padding: 12px 14px; outline: none; -webkit-appearance: none; transition: border-color 0.15s;
     }
-    .field input:focus, .field select:focus { border-color: var(--accent); }
+    .field textarea { resize: none; height: 72px; line-height: 1.4; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
     .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; }
 
     .toggle-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 13px 0; border-bottom: 1px solid var(--border);
     }
-    .toggle-label { font-size: 16px; }
+    .toggle-label { font-size: 16px; display: flex; align-items: center; gap: 8px; }
     .toggle {
-      width: 50px; height: 30px;
-      background: var(--border); border-radius: 15px; border: none;
-      cursor: pointer; position: relative; transition: background 0.2s;
+      width: 50px; height: 30px; background: var(--border); border-radius: 15px;
+      border: none; cursor: pointer; position: relative; transition: background 0.2s;
     }
     .toggle.on { background: var(--green); }
     .toggle::after {
-      content: ''; position: absolute;
-      width: 26px; height: 26px; background: white;
-      border-radius: 50%; top: 2px; left: 2px;
-      transition: transform 0.2s;
+      content: ''; position: absolute; width: 26px; height: 26px; background: white;
+      border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s;
       box-shadow: 0 1px 5px rgba(0,0,0,0.3);
     }
     .toggle.on::after { transform: translateX(20px); }
 
     .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
-    .btn {
-      flex: 1; padding: 14px; border-radius: 12px; border: none;
-      font-family: inherit; font-size: 16px; font-weight: 600;
-      cursor: pointer; transition: opacity 0.15s;
-    }
-    .btn:active     { opacity: 0.7; }
-    .btn-primary    { background: var(--accent); color: white; }
-    .btn-secondary  { background: var(--surface2); color: var(--text); }
-
-    /* ── Loading ── */
-    .loading { display: flex; align-items: center; justify-content: center; height: 60%; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner {
-      width: 30px; height: 30px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-    }
+    .btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+    .btn:active    { opacity: 0.7; }
+    .btn-primary   { background: var(--accent); color: white; }
+    .btn-secondary { background: var(--surface2); color: var(--text); }
 
     /* ── Toast ── */
     .toast {
       position: fixed; bottom: calc(var(--safe-bottom) + 82px); left: 50%;
       transform: translateX(-50%) translateY(14px);
-      background: var(--surface2); color: var(--text);
-      padding: 10px 18px; border-radius: 22px;
-      font-size: 14px; font-weight: 500;
-      opacity: 0; transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none; white-space: nowrap; z-index: 200;
+      background: var(--surface2); color: var(--text); padding: 10px 18px; border-radius: 22px;
+      font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none; white-space: nowrap; z-index: 300; border: 1px solid var(--border);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div>
-    <div class="header-title" id="header-title">Inbox</div>
-    <div class="header-count" id="header-count">Loading…</div>
+<!-- SCREEN: LOADING -->
+<div class="screen active" id="screen-loading">
+  <div class="spinner" style="margin:auto"></div>
+</div>
+
+<!-- SCREEN: LOGIN -->
+<div class="screen" id="screen-login">
+  <div class="login-glow"></div>
+  <div class="login-logo">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
   </div>
-  <button class="sync-btn" id="sync-btn" onclick="syncTasks()" title="Sync">↻</button>
+  <div class="login-title">Tasks</div>
+  <div class="login-sub">Sign in to sync your tasks across your Mac and iPhone.</div>
+  <button class="google-btn" onclick="signInWithGoogle()">
+    <svg class="google-logo" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    </svg>
+    Continue with Google
+  </button>
+  <div class="login-footer">Your tasks are private and tied to your Google account.</div>
 </div>
 
-<!-- Task list -->
-<div class="task-list" id="task-list">
-  <div class="loading"><div class="spinner"></div></div>
+<!-- SCREEN: APP -->
+<div class="screen" id="screen-app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title" id="header-title">Inbox</div>
+      <div class="header-count" id="header-count">Loading…</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="sync-btn" onclick="syncTasks()" title="Sync">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+      </button>
+      <div class="avatar-btn" id="avatar-btn" onclick="toggleUserMenu()">?</div>
+    </div>
+  </div>
+
+  <div class="task-list" id="task-list">
+    <div style="display:flex;align-items:center;justify-content:center;height:60%"><div class="spinner"></div></div>
+  </div>
+
+  <nav class="tab-bar">
+    <button class="tab active" onclick="switchTab('inbox')" id="tab-inbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+      </svg>
+      Inbox
+      <span class="tab-badge" id="badge-inbox" style="display:none"></span>
+    </button>
+    <button class="tab" onclick="switchTab('today')" id="tab-today">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Today
+    </button>
+    <button class="tab" onclick="switchTab('flagged')" id="tab-flagged">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+        <line x1="4" y1="22" x2="4" y2="15"/>
+      </svg>
+      Flagged
+    </button>
+    <button class="tab" onclick="switchTab('all')" id="tab-all">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+      All
+    </button>
+  </nav>
+
+  <button class="fab" onclick="openModal()">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
 </div>
 
-<!-- Tab bar -->
-<nav class="tab-bar">
-  <button class="tab active" onclick="switchTab('inbox')" id="tab-inbox">
-    <span class="tab-icon">📥</span>
-    Inbox
-    <span class="tab-badge" id="badge-inbox" style="display:none"></span>
-  </button>
-  <button class="tab" onclick="switchTab('today')" id="tab-today">
-    <span class="tab-icon">☀️</span>
-    Today
-  </button>
-  <button class="tab" onclick="switchTab('flagged')" id="tab-flagged">
-    <span class="tab-icon">🚩</span>
-    Flagged
-  </button>
-  <button class="tab" onclick="switchTab('all')" id="tab-all">
-    <span class="tab-icon">📋</span>
-    All
-  </button>
-</nav>
+<!-- USER MENU -->
+<div class="user-menu-overlay" id="user-menu-overlay" onclick="handleMenuOverlayClick(event)">
+  <div class="user-menu">
+    <div class="user-menu-header">
+      <div class="user-menu-name"  id="menu-name">—</div>
+      <div class="user-menu-email" id="menu-email">—</div>
+    </div>
+    <div class="user-menu-item danger" onclick="signOut()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign out
+    </div>
+  </div>
+</div>
 
-<!-- FAB -->
-<button class="fab" onclick="openModal()">+</button>
-
-<!-- Add task modal -->
+<!-- ADD TASK MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">New Task</div>
-
     <div class="field">
       <label>Title</label>
       <input type="text" id="input-title" placeholder="What needs to be done?" autocomplete="off">
     </div>
     <div class="field">
+      <label>Notes</label>
+      <textarea id="input-notes" placeholder="Optional notes…"></textarea>
+    </div>
+    <div class="field">
       <label>Priority</label>
       <select id="input-priority">
-        <option value="None">— None</option>
-        <option value="Low">↓ Low</option>
-        <option value="Medium">= Medium</option>
-        <option value="High">↑ High</option>
+        <option value="None">None</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
       </select>
     </div>
     <div class="field">
@@ -312,13 +405,18 @@
       <input type="date" id="input-due">
     </div>
     <div class="toggle-row">
-      <span class="toggle-label">🚩 Flagged</span>
+      <span class="toggle-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+        Flagged
+      </span>
       <button class="toggle" id="toggle-flag" onclick="toggleFlag()"></button>
     </div>
-
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+      <button class="btn btn-primary"   onclick="addTask()">Add Task</button>
     </div>
   </div>
 </div>
@@ -326,332 +424,278 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────────────────────────────
-// CONFIG — paste your values here
-// ─────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://kmfymwtarvvmzuwwspwy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4'; // paste your eyJ... legacy anon key
 
-// ─────────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────────
-let tasks       = [];
-let currentTab  = 'inbox';
-let flagged     = false;
-let syncing     = false;
+let session    = null;
+let tasks      = [];
+let currentTab = 'inbox';
+let flagged    = false;
+let syncing    = false;
 
-// ─────────────────────────────────────────────────────────────
-// API HELPERS
-// ─────────────────────────────────────────────────────────────
-const API_HEADERS = {
-  'apikey':        SUPABASE_KEY,
-  'Authorization': `Bearer ${SUPABASE_KEY}`,
-  'Content-Type':  'application/json',
-  'Prefer':        'resolution=merge-duplicates'
-};
+// ── Screens ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Auth ──
+function signInWithGoogle() {
+  const redirectTo = encodeURIComponent(window.location.href.split('#')[0]);
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
+}
+
+async function signOut() {
+  toggleUserMenu(false);
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${session?.access_token}` }
+  }).catch(() => {});
+  session = null; tasks = [];
+  sessionStorage.removeItem('sb_access_token');
+  showScreen('screen-login');
+}
+
+function parseHashSession() {
+  const params = new URLSearchParams(window.location.hash.substring(1));
+  const token  = params.get('access_token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return { access_token: token, user: { id: payload.sub, email: payload.email, user_metadata: payload.user_metadata || {} } };
+  } catch { return null; }
+}
+
+async function verifyToken(token) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  return { access_token: token, user: await res.json() };
+}
+
+// ── API ──
+function authHeaders() {
+  return {
+    'apikey':        SUPABASE_KEY,
+    'Authorization': `Bearer ${session?.access_token ?? SUPABASE_KEY}`,
+    'Content-Type':  'application/json',
+    'Prefer':        'resolution=merge-duplicates'
+  };
+}
 
 async function apiFetch(path, options = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: API_HEADERS,
-    ...options
-  });
-  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: authHeaders(), ...options });
+  if (res.status === 401) { signOut(); throw new Error('Unauthorized'); }
+  if (!res.ok) throw new Error(`API ${res.status}`);
   return res;
 }
 
-async function fetchAllTasks() {
-  const res = await apiFetch('tasks?order=created_at.asc');
-  return res.json();
-}
-
-async function upsertTask(task) {
-  await apiFetch('tasks', { method: 'POST', body: JSON.stringify(task) });
-}
-
+async function fetchAllTasks()    { return (await apiFetch('tasks?order=created_at.asc')).json(); }
+async function upsertTask(task)   { await apiFetch('tasks', { method: 'POST', body: JSON.stringify(task) }); }
 async function markComplete(task) {
-  const updated = {
-    ...task,
-    is_completed: true,
-    completed_at: new Date().toISOString(),
-    updated_at:   new Date().toISOString()
-  };
-  await apiFetch('tasks', { method: 'POST', body: JSON.stringify(updated) });
+  await apiFetch('tasks', { method: 'POST', body: JSON.stringify({
+    ...task, is_completed: true,
+    completed_at: new Date().toISOString(), updated_at: new Date().toISOString()
+  })});
 }
 
-// ─────────────────────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────────────────────
+// ── Avatar ──
+function updateAvatar() {
+  const meta     = session?.user?.user_metadata || {};
+  const email    = session?.user?.email || '';
+  const name     = meta.full_name || meta.name || email.split('@')[0] || '?';
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  const avatar   = meta.avatar_url || meta.picture;
+  const btn      = document.getElementById('avatar-btn');
+  btn.innerHTML  = avatar ? `<img src="${esc(avatar)}" alt="">` : initials;
+  document.getElementById('menu-name').textContent  = name;
+  document.getElementById('menu-email').textContent = email;
+}
+
+function toggleUserMenu(forceOpen) {
+  const el   = document.getElementById('user-menu-overlay');
+  const open = forceOpen !== undefined ? forceOpen : !el.classList.contains('open');
+  el.classList.toggle('open', open);
+}
+function handleMenuOverlayClick(e) { if (e.target.id === 'user-menu-overlay') toggleUserMenu(false); }
+
+// ── Utils ──
 function newUUID() {
-  return crypto.randomUUID
-    ? crypto.randomUUID()
+  return crypto.randomUUID ? crypto.randomUUID()
     : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0;
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16);
       });
 }
-
-function priorityColor(p) {
-  if (p === 'High')   return 'var(--high)';
-  if (p === 'Medium') return 'var(--medium)';
-  if (p === 'Low')    return 'var(--low)';
-  return 'transparent';
-}
-
-function priorityBorderClass(p) {
-  const map = { High: 'high', Medium: 'medium', Low: 'low' };
-  return map[p] || '';
-}
-
+function priorityColor(p)       { return { High:'var(--high)', Medium:'var(--medium)', Low:'var(--low)' }[p] || 'transparent'; }
+function priorityBorderClass(p) { return { High:'high', Medium:'medium', Low:'low' }[p] || ''; }
 function formatDue(dateStr) {
   if (!dateStr) return null;
-  const d   = new Date(dateStr);
-  const now = new Date();
-  const todayStart    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrowStart = new Date(todayStart.getTime() + 86400000);
-  const dayAfter      = new Date(tomorrowStart.getTime() + 86400000);
-
-  if (d < todayStart)    return { text: 'Overdue',  cls: 'due-overdue' };
-  if (d < tomorrowStart) return { text: 'Today',    cls: 'due-today'   };
-  if (d < dayAfter)      return { text: 'Tomorrow', cls: ''            };
-  return { text: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), cls: '' };
+  const d = new Date(dateStr); const t = new Date(); t.setHours(0,0,0,0);
+  if (d < t)                              return { text:'Overdue',  cls:'due-overdue' };
+  if (d < new Date(t.getTime()+86400000)) return { text:'Today',    cls:'due-today'   };
+  if (d < new Date(t.getTime()+172800000))return { text:'Tomorrow', cls:''            };
+  return { text: d.toLocaleDateString('en-US',{month:'short',day:'numeric'}), cls:'' };
 }
-
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function showToast(msg, duration = 2200) {
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg, ms=2400) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), ms);
 }
 
-// ─────────────────────────────────────────────────────────────
-// FILTER
-// ─────────────────────────────────────────────────────────────
-function visibleTasks() {
-  const now          = new Date();
-  const todayStart   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+const FLAG_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="var(--high)" stroke="none" style="flex-shrink:0"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><rect x="3" y="15" width="2" height="7" rx="1"/></svg>`;
+const NOTE_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`;
 
+const EMPTY_ICONS = {
+  inbox:   `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+  today:   `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  flagged: `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
+  all:     `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+};
+
+// ── Filter & Render ──
+function visibleTasks() {
+  const t = new Date(); t.setHours(0,0,0,0);
   switch (currentTab) {
-    case 'inbox':
-      return tasks.filter(t => !t.is_completed && !t.project_id);
-    case 'today':
-      return tasks.filter(t => {
-        if (t.is_completed) return false;
-        if (t.is_today_task) return true;
-        if (!t.due_date) return false;
-        const d = new Date(t.due_date);
-        return d >= todayStart && d < tomorrowStart;
-      });
-    case 'flagged':
-      return tasks.filter(t => !t.is_completed && t.is_flagged);
-    case 'all':
-      return tasks.filter(t => !t.is_completed);
-    default:
-      return [];
+    case 'inbox':   return tasks.filter(x => !x.is_completed && !x.project_id);
+    case 'today':   return tasks.filter(x => {
+      if (x.is_completed) return false;
+      if (x.is_today_task) return true;
+      if (!x.due_date) return false;
+      const d = new Date(x.due_date);
+      return d >= t && d < new Date(t.getTime()+86400000);
+    });
+    case 'flagged': return tasks.filter(x => !x.is_completed && x.is_flagged);
+    case 'all':     return tasks.filter(x => !x.is_completed);
+    default:        return [];
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────────────────────
 function render() {
   const list    = document.getElementById('task-list');
   const visible = visibleTasks();
 
-  // Header
-  const labels = { inbox: 'Inbox', today: 'Today', flagged: 'Flagged', all: 'All Tasks' };
-  document.getElementById('header-title').textContent = labels[currentTab];
+  document.getElementById('header-title').textContent =
+    { inbox:'Inbox', today:'Today', flagged:'Flagged', all:'All Tasks' }[currentTab];
   document.getElementById('header-count').textContent =
-    visible.length === 0
-      ? 'No tasks'
-      : `${visible.length} task${visible.length !== 1 ? 's' : ''}`;
+    visible.length === 0 ? 'No tasks' : `${visible.length} task${visible.length!==1?'s':''}`;
 
-  // Inbox badge
   const inboxN = tasks.filter(t => !t.is_completed && !t.project_id).length;
   const badge  = document.getElementById('badge-inbox');
-  if (inboxN > 0) { badge.textContent = inboxN > 99 ? '99+' : inboxN; badge.style.display = 'flex'; }
-  else              { badge.style.display = 'none'; }
+  badge.textContent = inboxN > 99 ? '99+' : inboxN;
+  badge.style.display = inboxN > 0 ? 'flex' : 'none';
 
-  // Empty state
   if (visible.length === 0) {
-    const icons = { inbox: '📥', today: '☀️', flagged: '🚩', all: '📋' };
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">${icons[currentTab]}</div>
-        <div class="empty-text">Nothing here</div>
-        <div class="empty-sub">Tap + to add a task</div>
-      </div>`;
-    return;
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${EMPTY_ICONS[currentTab]}</div>
+      <div class="empty-text">Nothing here</div>
+      <div class="empty-sub">Tap + to add a task</div>
+    </div>`; return;
   }
 
-  // Task rows
   list.innerHTML = visible.map(t => {
-    const due   = formatDue(t.due_date);
-    const pCls  = priorityBorderClass(t.priority);
-    const pClr  = priorityColor(t.priority);
-    const meta  = [];
-    if (t.is_flagged) meta.push(`<span>🚩</span>`);
-    if (due) meta.push(`<span class="${due.cls}">${due.text}</span>`);
+    const due  = formatDue(t.due_date);
+    const pCls = priorityBorderClass(t.priority);
+    const pClr = priorityColor(t.priority);
+    const meta = [];
+    if (t.is_flagged)                        meta.push(FLAG_SVG);
+    if (due)                                 meta.push(`<span class="${due.cls}">${due.text}</span>`);
     if (t.priority && t.priority !== 'None') meta.push(`<span>${esc(t.priority)}</span>`);
-
-    return `
-      <div class="task-item" id="task-${t.id}">
-        <button class="checkbox ${pCls}"
-          style="${pCls ? `border-color:${pClr}` : ''}"
-          onclick="completeTask('${t.id}')">
-        </button>
-        <div class="task-content">
-          <div class="task-title">${esc(t.title)}</div>
-          ${meta.length ? `<div class="task-meta">${meta.join('')}</div>` : ''}
-        </div>
-        <div class="priority-dot" style="background:${pClr}"></div>
-      </div>`;
+    if (t.notes)                             meta.push(NOTE_SVG);
+    return `<div class="task-item" id="task-${t.id}">
+      <button class="checkbox ${pCls}" style="${pCls?`border-color:${pClr}`:''}" onclick="completeTask('${t.id}')"></button>
+      <div class="task-content">
+        <div class="task-title">${esc(t.title)}</div>
+        ${meta.length?`<div class="task-meta">${meta.join('')}</div>`:''}
+      </div>
+      <div class="priority-dot" style="background:${pClr}"></div>
+    </div>`;
   }).join('');
 }
 
-// ─────────────────────────────────────────────────────────────
-// ACTIONS
-// ─────────────────────────────────────────────────────────────
+// ── Actions ──
 async function syncTasks() {
-  if (syncing) return;
-  syncing = true;
+  if (syncing) return; syncing = true;
   document.getElementById('sync-btn').classList.add('spinning');
-  try {
-    tasks = await fetchAllTasks();
-    render();
-  } catch (e) {
-    showToast('⚠️ Sync failed — check connection');
-  } finally {
-    syncing = false;
-    document.getElementById('sync-btn').classList.remove('spinning');
-  }
+  try { tasks = await fetchAllTasks(); render(); }
+  catch (e) { if (e.message !== 'Unauthorized') showToast('Sync failed — check connection'); }
+  finally { syncing = false; document.getElementById('sync-btn').classList.remove('spinning'); }
 }
 
 async function completeTask(id) {
-  const el   = document.getElementById(`task-${id}`);
+  const el = document.getElementById(`task-${id}`);
   const task = tasks.find(t => t.id === id);
   if (!task) return;
-
-  // Optimistic UI
   if (el) el.classList.add('completing');
-  setTimeout(() => {
-    tasks = tasks.filter(t => t.id !== id);
-    render();
-  }, 320);
-
-  try {
-    await markComplete(task);
-    showToast('✓ Task completed');
-  } catch (e) {
-    // Roll back
-    tasks.push(task);
-    render();
-    showToast('⚠️ Failed to sync');
-  }
+  setTimeout(() => { tasks = tasks.filter(t => t.id !== id); render(); }, 320);
+  try { await markComplete(task); showToast('Task completed'); }
+  catch { tasks.push(task); render(); showToast('Failed to sync'); }
 }
 
 async function addTask() {
   const titleEl = document.getElementById('input-title');
   const title   = titleEl.value.trim();
   if (!title) { titleEl.focus(); return; }
-
-  const dueRaw   = document.getElementById('input-due').value;
-  const priority = document.getElementById('input-priority').value;
-  const now      = new Date().toISOString();
-
+  const now = new Date().toISOString();
   const task = {
-    id:                    newUUID(),
-    title,
-    notes:                 '',
-    due_date:              dueRaw ? new Date(dueRaw + 'T00:00:00').toISOString() : null,
-    defer_date:            null,
-    is_completed:          false,
-    is_flagged:            flagged,
-    priority,
-    project_id:            null,
-    tag_ids:               '[]',
-    created_at:            now,
-    completed_at:          null,
-    repeat_rule:           'None',
-    parent_id:             null,
-    sort_order:            tasks.length,
-    last_reviewed:         null,
-    next_review_date:      null,
-    review_frequency_num:  null,
-    review_frequency_unit: null,
-    is_in_review:          false,
-    is_today_task:         false,
-    updated_at:            now
+    id: newUUID(), user_id: session.user.id, title,
+    notes:                 document.getElementById('input-notes').value.trim(),
+    due_date:              document.getElementById('input-due').value ? new Date(document.getElementById('input-due').value+'T00:00:00').toISOString() : null,
+    defer_date: null, is_completed: false, is_flagged: flagged,
+    priority:              document.getElementById('input-priority').value,
+    project_id: null, tag_ids: '[]', created_at: now, completed_at: null,
+    repeat_rule: 'None', parent_id: null, sort_order: tasks.length,
+    last_reviewed: null, next_review_date: null, review_frequency_num: null,
+    review_frequency_unit: null, is_in_review: false, is_today_task: false, updated_at: now
   };
-
-  // Optimistic add
-  tasks.push(task);
-  closeModal();
-  render();
-
-  try {
-    await upsertTask(task);
-    showToast('Task added');
-  } catch (e) {
-    showToast('⚠️ Failed to sync — task saved locally');
-  }
+  tasks.push(task); closeModal(); render();
+  try { await upsertTask(task); showToast('Task added'); }
+  catch { showToast('Failed to sync'); }
 }
 
-// ─────────────────────────────────────────────────────────────
-// TAB SWITCHING
-// ─────────────────────────────────────────────────────────────
+// ── Tab / Modal ──
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
   render();
 }
-
-// ─────────────────────────────────────────────────────────────
-// MODAL
-// ─────────────────────────────────────────────────────────────
 function openModal() {
   flagged = false;
-  document.getElementById('input-title').value    = '';
+  ['input-title','input-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('input-priority').value = 'None';
-  document.getElementById('input-due').value      = '';
+  document.getElementById('input-due').value = '';
   document.getElementById('toggle-flag').classList.remove('on');
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('input-title').focus(), 320);
 }
+function closeModal()          { document.getElementById('modal-overlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target.id==='modal-overlay') closeModal(); }
+function toggleFlag()          { flagged = !flagged; document.getElementById('toggle-flag').classList.toggle('on', flagged); }
+document.getElementById('input-title').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
 
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
+// ── Init ──
+async function init() {
+  const hashSession = parseHashSession();
+  if (hashSession) {
+    session = hashSession;
+    sessionStorage.setItem('sb_access_token', session.access_token);
+    history.replaceState(null, '', window.location.pathname);
+  }
+  if (!session) {
+    const saved = sessionStorage.getItem('sb_access_token');
+    if (saved) {
+      session = await verifyToken(saved).catch(() => null);
+      if (!session) sessionStorage.removeItem('sb_access_token');
+    }
+  }
+  if (session) { updateAvatar(); showScreen('screen-app'); syncTasks(); }
+  else           showScreen('screen-login');
 }
 
-function handleOverlayClick(e) {
-  if (e.target.id === 'modal-overlay') closeModal();
-}
-
-function toggleFlag() {
-  flagged = !flagged;
-  document.getElementById('toggle-flag').classList.toggle('on', flagged);
-}
-
-// Enter key submits
-document.getElementById('input-title').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addTask();
-});
-
-// ─────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────
-syncTasks();
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+init();
 </script>
 </body>
 </html>
