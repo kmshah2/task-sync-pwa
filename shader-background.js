@@ -31,7 +31,7 @@
       uniforms: {
         iTime: { value: 0 },
         iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        iOffset: { value: new THREE.Vector2(-0.1, 0.15) }  // Centered with slight shift
+        iOffset: { value: new THREE.Vector2(0.0, 0.35) }  // Centered horizontally, shifted up
       },
       vertexShader: `
         void main() {
@@ -76,8 +76,8 @@
 
         void main() {
           vec2 shake = vec2(sin(iTime * 1.2) * 0.005, cos(iTime * 2.1) * 0.005);
-          vec2 centeredCoord = gl_FragCoord.xy - iResolution.xy * 0.5 + iOffset * iResolution.xy;
-          vec2 p = (centeredCoord + shake * iResolution.xy) / iResolution.y * mat2(5.0, -3.5, 3.5, 5.0);
+          vec2 centeredCoord = (gl_FragCoord.xy - iResolution.xy * 0.5) * 0.85 + iOffset * iResolution.xy;
+          vec2 p = (centeredCoord + shake * iResolution.xy) / iResolution.y * mat2(4.0, -3.0, 3.0, 4.0);
           vec2 v;
           vec4 o = vec4(0.0);
 
