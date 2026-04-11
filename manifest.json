@@ -1,6 +1,6 @@
 {
-  "name": "Tasks",
-  "short_name": "Tasks",
+  "name": "Orbiter",
+  "short_name": "Orbiter",
   "description": "Your personal task manager",
   "start_url": "./index.html",
   "display": "standalone",
