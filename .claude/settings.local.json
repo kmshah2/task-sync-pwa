@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx serve:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(move icon.svg icon.png)",
+      "Bash(ren icon.svg icon.png)"
     ]
   }
 }
