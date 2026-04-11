@@ -141,17 +141,117 @@
 <div class="toast" id="toast"></div>
 <script>
 const SIRI_WORKER='https://taskapp-siri.goyalamars18.workers.dev';
+const SHORTCUT_LINK='https://www.icloud.com/shortcuts/8eb2a5065ad144e8aae88fb819455972';
 async function enableSiri(){
   toggleMenu(false);
   try{
     const r=await fetch(SIRI_WORKER+'/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:session.access_token,refresh_token:localStorage.getItem('sb_refresh_token'),user_id:session.user.id})});
     const d=await r.json();
-    if(d.code){
-      const msg='Your Siri code:\n\n'+d.code+'\n\nInstall the shortcut and enter this code when asked.';
-      alert(msg);
-    }else{alert('Failed: '+(d.error||'Unknown error'));}
+    if(d.code){showSiriModal(d.code);}else{alert('Failed: '+(d.error||'Unknown error'));}
   }catch(e){alert('Error: '+e.message);}
 }
+function showSiriModal(code){
+  const el=document.createElement('div');
+  el.id='siri-modal';
+  el.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:flex-end;justify-content:center';
+  el.innerHTML=`
+    <div id="siri-sheet" style="background:var(--card2);border:1px solid var(--border2);border-radius:22px 22px 0 0;width:100%;padding:10px 24px calc(env(safe-area-inset-bottom) + 24px);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1)">
+      <div style="width:34px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 24px"></div>
+      <div id="siri-step-1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.4px">Enable Siri</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:2px">Step 1 of 3 — Your code</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:18px 20px;margin-bottom:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Your Orbit Code</div>
+          <div style="font-size:32px;font-weight:800;letter-spacing:4px;color:var(--purple);font-variant-numeric:tabular-nums">${code}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:8px">You'll enter this once when setting up the shortcut</div>
+        </div>
+        <button onclick="navigator.clipboard.writeText('${code}').then(()=>{this.innerHTML='<svg width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2.5\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'><polyline points=\\'20 6 9 17 4 12\\'/></svg> Copied';setTimeout(()=>{this.innerHTML='<svg width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'><rect x=\\'9\\' y=\\'9\\' width=\\'13\\' height=\\'13\\' rx=\\'2\\'/><path d=\\'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\\'/></svg> Copy Code'},2000);})" style="width:100%;padding:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:all .15s">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Code
+        </button>
+        <button onclick="document.getElementById('siri-step-1').style.display='none';document.getElementById('siri-step-2').style.display='block'" style="width:100%;padding:14px;background:var(--purple);border:none;border-radius:12px;color:white;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.3);transition:all .15s">Continue</button>
+      </div>
+      <div id="siri-step-2" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--cyan-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.4px">Install Shortcut</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:2px">Step 2 of 3 — One tap install</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:16px">
+          <div style="font-size:14px;color:var(--text2);line-height:1.6">Tap below to install the Orbit shortcut. When it opens, tap <span style="color:var(--text);font-weight:600">Add Shortcut</span> to confirm.</div>
+        </div>
+        <a href="${SHORTCUT_LINK}" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:var(--cyan);border-radius:12px;color:#08080c;font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(34,211,238,.25);margin-bottom:10px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Install Shortcut
+        </a>
+        <button onclick="document.getElementById('siri-step-2').style.display='none';document.getElementById('siri-step-3').style.display='block'" style="width:100%;padding:14px;background:none;border:1px solid var(--border2);border-radius:12px;color:var(--text2);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">Already installed — Next</button>
+      </div>
+      <div id="siri-step-3" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.4px">You're all set</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:2px">Step 3 of 3 — How to use it</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px">Say "Hey Siri, Orbit"</div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.5">Siri will ask what your task is</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--amber-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px">Say your task naturally</div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.5">"Do the dishes tomorrow at 3pm" — dates and times are detected automatically</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--cyan-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px">Add priority with !high, !medium, !low</div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.5">"Call John !high" adds a high priority task</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--pink-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:3px">No date? Siri will ask</div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.5">If no date is detected, Siri follows up with "When?"</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('siri-modal').remove()" style="width:100%;padding:14px;background:var(--purple);border:none;border-radius:12px;color:white;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.3)">Done</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(el);
+  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById('siri-sheet').style.transform='translateY(0)';}));
+} 
 const SB_URL='https://kmfymwtarvvmzuwwspwy.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZnltd3RhcnZ2bXp1d3dzcHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTI2NzcsImV4cCI6MjA5MTMyODY3N30.9aBPLgECyFtj12sknviOhi4aR4p-tG1FBT0v9tbU5J4';
 let session=null,tasks=[],currentTab='inbox',flagged=false,syncing=false;
