@@ -2936,7 +2936,9 @@
       if (v.length === 0) {
         var emptyMsg = searchQuery ? 'No results' : 'Nothing here';
         var emptySub = searchQuery ? 'Try a different search' : 'Tap + to add a task';
-        area.innerHTML = '<div class="empty-state"><div class="empty-icon">' + EMPTY_ICONS[currentTab] + '</div><div class="empty-label">' + emptyMsg + '</div><div class="empty-sub">' + emptySub + '</div></div>';
+        var emptyHTML = '<div class="empty-state"><div class="empty-icon">' + EMPTY_ICONS[currentTab] + '</div><div class="empty-label">' + emptyMsg + '</div><div class="empty-sub">' + emptySub + '</div></div>';
+        if (currentTab === 'calendar') { area.innerHTML = getCalHTML() + emptyHTML; setTimeout(bindCalTouch, 100); }
+        else { area.innerHTML = emptyHTML; }
         updateAppBadge(); return;
       }
       updateAppBadge();
