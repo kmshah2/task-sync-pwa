@@ -2773,13 +2773,13 @@
           var startD = new Date(calSelectedDate); startD.setHours(0, 0, 0, 0);
           var endD = new Date(startD.getTime() + 864e5);
           var isActualToday = startD.getTime() === (new Date().setHours(0, 0, 0, 0));
+          var startStr = calSelectedDate.getFullYear() + '-' + String(calSelectedDate.getMonth() + 1).padStart(2, '0') + '-' + String(calSelectedDate.getDate()).padStart(2, '0');
           base = tasks.filter(function (x) {
             if (x.is_completed || x.parent_id) return false;
-            if (calView === 'today' && x.is_today_task) return true; // Keep manual today toggle visible if mode is today
+            if (calView === 'today' && x.is_today_task) return true;
             if (isActualToday && x.is_today_task) return true;
             if (!x.due_date) return false;
-            var d = new Date(x.due_date);
-            return d >= startD && d < endD;
+            return x.due_date.substring(0, 10) === startStr;
           });
           break;
         case 'flagged': base = tasks.filter(function (x) { return !x.is_completed && x.is_flagged && !x.parent_id; }); break;
